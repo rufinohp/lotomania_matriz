@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planilha Lotomania</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --prognostico-color: #ff9800;
+            --font-size-large: 28px;
+            --border-color: #ddd;
+            --success-color: #2e7d32;
+            --error-color: #d32f2f;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            border: 1px solid var(--border-color);
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: center;
+            font-size: var(--font-size-large);
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .dezenas-cell {
+            white-space: nowrap;
+            text-align: left;
+        }
+
+        .dezenas {
+            display: inline;
+            margin: 0 2px;
+            padding: 2px 4px;
+            font-size: 24px;
+        }
+
+        .repetida {
+            background-color: #d3d3d3;
+        }
+
+        .unica {
+            color: red;
+        }
+
+        .input-section {
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .input-section input[type="text"] {
+            width: 600px;
+            padding: 10px;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .input-section button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            margin: 5px;
+        }
+
+        .input-section button:hover {
+            background-color: #45a049;
+        }
+
+        .reset-button {
+            background-color: #f44336;
+        }
+
+        .reset-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .message {
+            margin-top: 10px;
+            font-size: 18px;
+            color: var(--error-color);
+        }
+
+        .message.success {
+            color: var(--success-color);
+        }
+
+        .planilha-title {
+            font-size: 2.7em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .frequencia-section, .falhar-section, .grade-section, .estatisticas-section {
+            margin: 30px auto;
+            max-width: 1400px;
+        }
+
+        .frequencia-section h2, .falhar-section h2, .grade-section h2, .estatisticas-section h2 {
+            font-size: 2.7em;
+            margin-bottom: 20px;
+        }
+
+        .frequencia-section .freq-row {
+            font-size: var(--font-size-large);
+            margin: 10px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .freq-row .freq-label {
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+            padding-top: 6px;
+        }
+
+        .freq-row .dezenas-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-width: 900px;
+        }
+
+        .freq-row span.dezena-span {
+            padding: 6px 9px;
+            border-radius: 3px;
+            display: inline-block;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .falhar-section p {
+            font-size: var(--font-size-large);
+            white-space: nowrap;
+        }
+
+        .falhar-dezena {
+            background-color: black;
+            color: white;
+            padding: 6px 9px;
+            margin: 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .estatisticas-section p {
+            font-size: var(--font-size-large);
+        }
+
+        .dezenas-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .mais-sorteadas {
+            background-color: #32CD32;
+            color: black;
+            padding: 6px 9px;
+            border-radius: 3px;
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .freq-6 { background-color: lightblue; color: black; }
+        .freq-5 { background-color: #4682b4; color: white; }
+        .freq-4 { background-color: magenta; color: white; }
+        .freq-3 { background-color: brown; color: white; }
+        .freq-2 { background-color: yellow; color: black; }
+        .freq-1 { background-color: #00cc00; color: black; }
+        .freq-0 { background-color: red; color: white; }
+
+        .grade-section .grades-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .grade-section .grade-wrapper {
+            width: 360px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .grade-section .grade-container {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .grade-cell {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        .grade-cell.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .grade-cell.prognostico-selected {
+            background-color: var(--prognostico-color);
+            color: white;
+        }
+
+        .grade-cell.falhar {
+            background-color: black;
+            color: white;
+        }
+
+        .grade-cell.prognostico-cell {
+            cursor: pointer;
+        }
+
+        .grade-title {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            text-align: center;
+            height: 40px;
+            line-height: 40px;
+            width: 100%;
+        }
+
+        .counter {
+            font-size: 1.2em;
+            margin: 10px 0;
+            text-align: center;
+            color: #333;
+            height: 30px;
+            line-height: 30px;
+            width: 100%;
+        }
+
+        .quadrant-row-5 {
+            border-bottom: 2px solid red !important;
+        }
+
+        .quadrant-col-5 {
+            border-right: 2px solid red !important;
+        }
+
+        @media (max-width: 1100px) {
+            .grade-section .grades-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            .grade-section .grade-wrapper {
+                width: 100%;
+                max-width: 360px;
+            }
+            .grade-section .grade-container {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            table, .frequencia-section, .falhar-section, .grade-section, .estatisticas-section {
+                font-size: 16px;
+            }
+            th, td {
+                padding: 8px;
+            }
+            .dezenas {
+                font-size: 18px;
+            }
+            .input-section {
+                margin: 30px auto;
+            }
+            .input-section input[type="text"] {
+                width: 100%;
+            }
+            .frequencia-section .freq-row {
+                font-size: 18px;
+            }
+            .freq-row span.dezena-span {
+                min-width: 35px;
+            }
+            .freq-row .dezenas-container {
+                max-width: 100%;
+            }
+            .estatisticas-section h2 {
+                font-size: 2em;
+            }
+            .estatisticas-section p {
+                font-size: 18px;
+            }
+            .dezenas-row {
+                gap: 4px;
+                margin-bottom: 8px;
+            }
+            .mais-sorteadas {
+                padding: 4px 6px;
+                font-size: 16px;
+                min-width: 35px;
+            }
+            .grade-section .grades-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            .grade-section .grade-wrapper {
+                width: 100%;
+                max-width: 360px;
+            }
+            .grade-cell {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+            .grade-title {
+                font-size: 1.2em;
+                height: 36px;
+                line-height: 36px;
+            }
+            .counter {
+                font-size: 1em;
+                height: 28px;
+                line-height: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="input-section" aria-labelledby="input-title">
+        <h2 id="input-title">Inserir Novo Concurso</h2>
+        <form id="concursoForm" aria-label="Formulário para adicionar novo concurso">
+            <input type="text" id="dezenasInput" placeholder="Digite 20 dezenas (ex.: 01,02,03,...,20)" required aria-label="Digite as 20 dezenas do concurso">
+            <button type="submit">Adicionar Concurso</button>
+        </form>
+        <button id="exportCsvButton">Exportar como CSV</button>
+        <button id="resetButton" class="reset-button">Redefinir Dados</button>
+        <div id="message" class="message" role="alert" aria-live="polite"></div>
+    </section>
+
+    <h2 class="planilha-title">Planilha Lotomania - Concursos 2758 a 2767</h2>
+    <table id="concursoTable" aria-label="Tabela de concursos da Lotomania">
+        <thead>
+            <tr>
+                <th>Concurso</th>
+                <th>Dezenas do Concurso</th>
+                <th>Primos</th>
+                <th>Par</th>
+                <th>Ímpar</th>
+                <th>Repet.</th>
+                <th>Repetidas</th>
+                <th>Gêmeas</th>
+            </tr>
+        </thead>
+        <tbody id="concursoTableBody">
+            <tr>
+                <td>2758</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">06</span><span class="dezenas">10</span><span class="dezenas">12</span><span class="dezenas">13</span><span class="dezenas">14</span><span class="dezenas">19</span><span class="dezenas">30</span><span class="dezenas">38</span><span class="dezenas">39</span><span class="dezenas">43</span><span class="dezenas">50</span><span class="dezenas">58</span><span class="dezenas">62</span><span class="dezenas">63</span><span class="dezenas">64</span><span class="dezenas">72</span><span class="dezenas">73</span><span class="dezenas">86</span><span class="dezenas">87</span><span class="dezenas">94</span>
+                </td>
+                <td>4</td>
+                <td>13</td>
+                <td>7</td>
+                <td>0</td>
+                <td>4</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>2759</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">02</span><span class="dezenas">05</span><span class="dezenas">19</span><span class="dezenas">27</span><span class="dezenas">29</span><span class="dezenas">35</span><span class="dezenas">44</span><span class="dezenas">60</span><span class="dezenas">64</span><span class="dezenas">65</span><span class="dezenas">68</span><span class="dezenas">75</span><span class="dezenas">80</span><span class="dezenas">87</span><span class="dezenas">91</span><span class="dezenas">93</span><span class="dezenas">94</span><span class="dezenas">95</span><span class="dezenas">98</span><span class="dezenas">99</span>
+                </td>
+                <td>4</td>
+                <td>8</td>
+                <td>12</td>
+                <td>4</td>
+                <td>5</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>2760</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">03</span><span class="dezenas">21</span><span class="dezenas">27</span><span class="dezenas">41</span><span class="dezenas">47</span><span class="dezenas">53</span><span class="dezenas">54</span><span class="dezenas">59</span><span class="dezenas">61</span><span class="dezenas">64</span><span class="dezenas">68</span><span class="dezenas">73</span><span class="dezenas">75</span><span class="dezenas">76</span><span class="dezenas">77</span><span class="dezenas">82</span><span class="dezenas">86</span><span class="dezenas">94</span><span class="dezenas">97</span><span class="dezenas">99</span>
+                </td>
+                <td>8</td>
+                <td>7</td>
+                <td>13</td>
+                <td>6</td>
+                <td>7</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>2761</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">06</span><span class="dezenas">07</span><span class="dezenas">08</span><span class="dezenas">14</span><span class="dezenas">17</span><span class="dezenas">18</span><span class="dezenas">24</span><span class="dezenas">27</span><span class="dezenas">28</span><span class="dezenas">31</span><span class="dezenas">42</span><span class="dezenas">48</span><span class="dezenas">49</span><span class="dezenas">63</span><span class="dezenas">74</span><span class("%s")>76</span><span class="dezenas">77</span><span class="dezenas">79</span><span class="dezenas">90</span><span class="dezenas">97</span>
+                </td>
+                <td>5</td>
+                <td>11</td>
+                <td>9</td>
+                <td>4</td>
+                <td>4</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>2762</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">02</span><span class="dezenas">05</span><span class="dezenas">09</span><span class="dezenas">13</span><span class="dezenas">26</span><span class="dezenas">30</span><span class="dezenas">34</span><span class="dezenas">36</span><span class="dezenas">38</span><span class="dezenas">40</span><span class="dezenas">48</span><span class="dezenas">51</span><span class="dezenas">53</span><span class="dezenas">56</span><span class="dezenas">62</span><span class="dezenas">67</span><span class="dezenas">68</span><span class="dezenas">69</span><span class="dezenas">82</span><span class="dezenas">99</span>
+                </td>
+                <td>5</td>
+                <td>12</td>
+                <td>8</td>
+                <td>1</td>
+                <td>3</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>2763</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">06</span><span class="dezenas">12</span><span class="dezenas">14</span><span class="dezenas">24</span><span class="dezenas">31</span><span class="dezenas">42</span><span class="dezenas">45</span><span class="dezenas">52</span><span class="dezenas">57</span><span class="dezenas">59</span><span class="dezenas">60</span><span class="dezenas">61</span><span class="dezenas">62</span><span class="dezenas">63</span><span class="dezenas">67</span><span class="dezenas">81</span><span class="dezenas">83</span><span class="dezenas">85</span><span class="dezenas">91</span><span class="dezenas">97</span>
+                </td>
+                <td>6</td>
+                <td>8</td>
+                <td>12</td>
+                <td>2</td>
+                <td>2</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>2764</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">02</span><span class="dezenas">04</span><span class="dezenas">05</span><span class="dezenas">09</span><span class="dezenas">10</span><span class="dezenas">13</span><span class="dezenas">15</span><span class="dezenas">23</span><span class="dezenas">28</span><span class="dezenas">30</span><span class="dezenas">36</span><span class="dezenas">46</span><span class="dezenas">61</span><span class="dezenas">64</span><span class="dezenas">66</span><span class="dezenas">67</span><span class="dezenas">72</span><span class="dezenas">80</span><span class="dezenas">83</span><span class="dezenas">96</span>
+                </td>
+                <td>7</td>
+                <td>12</td>
+                <td>8</td>
+                <td>3</td>
+                <td>5</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>2765</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">22</span><span class="dezenas">25</span><span class="dezenas">28</span><span class="dezenas">33</span><span class="dezenas">47</span><span class="dezenas">49</span><span class="dezenas">65</span><span class="dezenas">67</span><span class="dezenas">73</span><span class="dezenas">75</span><span class="dezenas">76</span><span class="dezenas">77</span><span class="dezenas">81</span><span class="dezenas">82</span><span class="dezenas">83</span><span class="dezenas">84</span><span class="dezenas">87</span><span class="dezenas">90</span><span class="dezenas">94</span><span class="dezenas">98</span>
+                </td>
+                <td>2</td>
+                <td>8</td>
+                <td>12</td>
+                <td>3</td>
+                <td>4</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>2766</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">01</span><span class="dezenas">06</span><span class="dezenas">18</span><span class="dezenas">26</span><span class="dezenas">32</span><span class="dezenas">35</span><span class="dezenas">40</span><span class="dezenas">42</span><span class="dezenas">46</span><span class="dezenas">47</span><span class="dezenas">49</span><span class="dezenas">60</span><span class="dezenas">66</span><span class="dezenas">74</span><span class="dezenas">75</span><span class="dezenas">76</span><span class="dezenas">77</span><span class="dezenas">85</span><span class="dezenas">89</span><span class="dezenas">00</span>
+                </td>
+                <td>2</td>
+                <td>12</td>
+                <td>8</td>
+                <td>5</td>
+                <td>5</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>2767</td>
+                <td class="dezenas-cell">
+                    <span class="dezenas">04</span><span class="dezenas">06</span><span class="dezenas">25</span><span class="dezenas">35</span><span class="dezenas">37</span><span class="dezenas">39</span><span class="dezenas">42</span><span class="dezenas">47</span><span class="dezenas">58</span><span class="dezenas">60</span><span class="dezenas">67</span><span class="dezenas">77</span><span class="dezenas">79</span><span class="dezenas">87</span><span class="dezenas">88</span><span class="dezenas">90</span><span class="dezenas">92</span><span class="dezenas">96</span><span class="dezenas">97</span><span class="dezenas">98</span>
+                </td>
+                <td>5</td>
+                <td>10</td>
+                <td>10</td>
+                <td>6</td>
+                <td>6</td>
+                <td>2</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <section class="falhar-section" id="falharSection" aria-labelledby="falhar-title">
+        <h2 id="falhar-title">Dezenas que Podem Falhar</h2>
+        <p id="falharDezenas"></p>
+    </section>
+
+    <section class="frequencia-section" id="frequenciaSection" aria-labelledby="frequencia-title">
+        <h2 id="frequencia-title">Frequência das Dezenas</h2>
+        <div id="frequenciaContent"></div>
+    </section>
+
+    <section class="estatisticas-section" id="estatisticasSection" aria-labelledby="estatisticas-title">
+        <h2 id="estatisticas-title">Estatísticas</h2>
+        <p id="maisSorteadasDezenas"></p>
+    </section>
+
+    <section class="grade-section" id="gradeSection" aria-labelledby="grade-title">
+        <h2 id="grade-title">Grades de Dezenas</h2>
+        <div class="grades-container">
+            <div class="grade-wrapper">
+                <div class="grade-title">Prognóstico</div>
+                <div id="prognosticoCounter" class="counter">Dezenas selecionadas: 0</div>
+                <div id="prognosticoGradeContainer" class="grade-container"></div>
+            </div>
+            <div class="grade-wrapper">
+                <div class="grade-title" id="ultimoGradeTitle">Último Concurso (2767)</div>
+                <div class="counter"></div>
+                <div id="gradeContainer" class="grade-container"></div>
+            </div>
+            <div class="grade-wrapper">
+                <div class="grade-title" id="penultimoGradeTitle">Penúltimo Concurso (2766)</div>
+                <div class="counter"></div>
+                <div id="penultimoGradeContainer" class="grade-container"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Verificar suporte ao localStorage
+        if (!window.localStorage) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = 'Aviso: O armazenamento local não está disponível. As alterações não serão salvas após fechar a página.';
+            messageDiv.className = 'message';
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = 'message';
+            }, 5000);
+        }
+
+        const primos = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97];
+        const gemeas = [11, 22, 33, 44, 55, 66, 77, 88, 99];
+        const concursoForm = document.getElementById('concursoForm');
+        const dezenasInput = document.getElementById('dezenasInput');
+        const messageDiv = document.getElementById('message');
+        const concursoTable = document.getElementById('concursoTable');
+        const concursoTableBody = document.getElementById('concursoTableBody');
+        const frequenciaSection = document.getElementById('frequenciaSection');
+        const falharDezenas = document.getElementById('falharDezenas');
+        const gradeContainer = document.getElementById('gradeContainer');
+        const prognosticoGradeContainer = document.getElementById('prognosticoGradeContainer');
+        const resetButton = document.getElementById('resetButton');
+
+        // Cache para frequências
+        let frequenciaCache = {};
+        for (let i = 0; i <= 99; i++) {
+            frequenciaCache[i.toString().padStart(2, '0')] = 0;
+        }
+
+        // Lista inicial das 28 dezenas mais sorteadas
+        let maisSorteadas = [
+            '05', '11', '18', '19', '26', '29', '32', '33', '34', '39',
+            '44', '49', '51', '54', '62', '64', '67', '69', '72', '79',
+            '80', '81', '82', '83', '84', '86', '95', '97'
+        ].slice(0, 28);
+
+        // Armazenar seleções do prognóstico
+        let prognosticoSelections = {};
+        for (let i = 0; i <= 99; i++) {
+            const num = i === 100 ? '00' : i.toString().padStart(2, '0');
+            prognosticoSelections[num] = false;
+        }
+
+        function validateInput(input) {
+            try {
+                console.log('Validando entrada:', input);
+                const dezenas = input.trim().split(/[\s,]+/).map(num => {
+                    if (!/^\d{1,2}$/.test(num.trim())) return null;
+                    const parsed = parseInt(num.trim(), 10);
+                    if (isNaN(parsed) || parsed < 0 || parsed > 99) return null;
+                    return parsed.toString().padStart(2, '0');
+                }).filter(num => num !== null);
+
+                const uniqueDezenas = [...new Set(dezenas)];
+                if (dezenas.length !== 20) {
+                    return { valid: false, message: `Insira exatamente 20 dezenas (encontradas ${dezenas.length}).` };
+                }
+                if (uniqueDezenas.length !== 20) {
+                    return { valid: false, message: `As dezenas devem ser únicas (encontradas ${uniqueDezenas.length} únicas).` };
+                }
+                console.log('Validação bem-sucedida:', dezenas);
+                return { valid: true, dezenas };
+            } catch (error) {
+                console.error('Erro ao validar entrada:', error);
+                return { valid: false, message: 'Entrada inválida. Use números de 00 a 99 separados por vírgulas ou espaços.' };
+            }
+        }
+
+        function calculateMetrics(dezenas, lastDezenas) {
+            try {
+                console.log('Calculando métricas para dezenas:', dezenas, 'últimas:', lastDezenas);
+                const sortedDezenas = dezenas.map(num => num.padStart(2, '0')).sort((a, b) => parseInt(a) - parseInt(b));
+                const formattedLastDezenas = lastDezenas.map(num => num.padStart(2, '0'));
+                const repetidas = sortedDezenas.filter(num => formattedLastDezenas.includes(num));
+                const primosCount = sortedDezenas.filter(num => primos.includes(parseInt(num))).length;
+                const parCount = sortedDezenas.filter(num => parseInt(num) % 2 === 0).length;
+                const gemeasCount = sortedDezenas.filter(num => gemeas.includes(parseInt(num))).length;
+                const metrics = {
+                    sortedDezenas,
+                    repetidas,
+                    primosCount,
+                    parCount,
+                    imparCount: 20 - parCount,
+                    repetidasCount: repetidas.length,
+                    gemeasCount
+                };
+                console.log('Métricas calculadas:', metrics);
+                return metrics;
+            } catch (error) {
+                console.error('Erro ao calcular métricas:', error);
+                throw error;
+            }
+        }
+
+        function updateFrequenciaCache() {
+            try {
+                console.log('Atualizando cache de frequências');
+                frequenciaCache = {};
+                for (let i = 0; i <= 99; i++) {
+                    frequenciaCache[i.toString().padStart(2, '0')] = 0;
+                }
+                const rows = concursoTableBody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const rowDezenas = Array.from(row.cells[1].querySelectorAll('.dezenas'))
+                        .map(span => span.textContent.padStart(2, '0'));
+                    rowDezenas.forEach(num => frequenciaCache[num]++);
+                });
+                console.log('Cache de frequências atualizado');
+            } catch (error) {
+                console.error('Erro ao atualizar cache de frequências:', error);
+            }
+        }
+
+        function calcularMaisSorteadas() {
+            try {
+                console.log('Calculando mais sorteadas');
+                const sortedDezenas = Object.keys(frequenciaCache).sort((a, b) => {
+                    if (frequenciaCache[b] === frequenciaCache[a]) {
+                        return parseInt(a) - parseInt(b);
+                    }
+                    return frequenciaCache[b] - frequenciaCache[a];
+                });
+                maisSorteadas = sortedDezenas.slice(0, 28);
+                console.log('Mais sorteadas atualizadas:', maisSorteadas);
+            } catch (error) {
+                console.error('Erro ao calcular mais sorteadas:', error);
+            }
+        }
+
+        function updateEstatisticasSection() {
+            try {
+                console.log('Atualizando estatísticas');
+                const maisSorteadasDezenas = document.getElementById('maisSorteadasDezenas');
+                const sortedDezenas = maisSorteadas.sort((a, b) => parseInt(a) - parseInt(b));
+                
+                const firstRow = sortedDezenas.slice(0, 14);
+                const secondRow = sortedDezenas.slice(14, 28);
+                
+                maisSorteadasDezenas.innerHTML = `
+                    <div class="dezenas-row">
+                        ${firstRow.map(num => `<span class="mais-sorteadas">${num}</span>`).join('')}
+                    </div>
+                    <div class="dezenas-row">
+                        ${secondRow.map(num => `<span class="mais-sorteadas">${num}</span>`).join('')}
+                    </div>
+                `;
+                console.log('Estatísticas atualizadas');
+            } catch (error) {
+                console.error('Erro ao atualizar estatísticas:', error);
+            }
+        }
+
+        function updateDezenasFalhar() {
+            try {
+                console.log('Atualizando dezenas que podem falhar');
+                const rows = concursoTableBody.querySelectorAll('tr');
+                const lastRow = rows[rows.length - 1];
+                const lastDezenas = Array.from(lastRow.cells[1].querySelectorAll('.dezenas'))
+                    .map(span => parseInt(span.textContent));
+                const falhar = lastDezenas.map(num => (100 - num).toString().padStart(2, '0'))
+                    .sort((a, b) => parseInt(a) - parseInt(b));
+                falharDezenas.innerHTML = falhar.map(num => `<span class="falhar-dezena">${num}</span>`).join('');
+                console.log('Dezenas que podem falhar atualizadas:', falhar);
+            } catch (error) {
+                console.error('Erro ao atualizar dezenas que podem falhar:', error);
+            }
+        }
+
+        function updateFrequenciaSection() {
+            try {
+                console.log('Atualizando frequência das dezenas');
+                const fragment = document.createDocumentFragment();
+                const content = document.createElement('div');
+                content.id = 'frequenciaContent';
+                content.innerHTML = [6, 5, 4, 3, 2, 1, 0].map(freq => {
+                    const dezenasFreq = Object.keys(frequenciaCache)
+                        .filter(num => frequenciaCache[num] === freq)
+                        .sort((a, b) => parseInt(a) - parseInt(b));
+                    return `
+                        <div class="freq-row">
+                            <span class="freq-label">${freq}X:</span>
+                            <div class="dezenas-container">
+                                ${dezenasFreq.length === 0 ? 'Nenhuma' : 
+                                dezenasFreq.map(num => `<span class="freq-${freq} dezena-span">${num}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                fragment.appendChild(content);
+                const currentContent = frequenciaSection.querySelector('#frequenciaContent');
+                if (currentContent) {
+                    currentContent.replaceWith(fragment.firstChild);
+                } else {
+                    frequenciaSection.appendChild(fragment.firstChild);
+                }
+                console.log('Frequência das dezenas atualizada');
+            } catch (error) {
+                console.error('Erro ao atualizar frequência:', error);
+            }
+        }
+
+        function updatePenultimoGrade() {
+            try {
+                console.log('Atualizando grade do penúltimo concurso');
+                const rows = concursoTableBody.querySelectorAll('tr');
+                if (rows.length < 2) {
+                    document.getElementById('penultimoGradeContainer').innerHTML = '';
+                    document.getElementById('penultimoGradeTitle').textContent = 'Penúltimo Concurso (N/A)';
+                    console.log('Penúltimo concurso não disponível');
+                    return;
+                }
+
+                const penultimoRow = rows[rows.length - 2];
+                const penultimoConcurso = parseInt(penultimoRow.cells[0].textContent);
+                const penultimoDezenas = Array.from(penultimoRow.cells[1].querySelectorAll('.dezenas'))
+                    .map(span => span.textContent.padStart(2, '0'));
+
+                document.getElementById('penultimoGradeTitle').textContent = `Penúltimo Concurso (${penultimoConcurso})`;
+
+                const fragment = document.createDocumentFragment();
+                for (let i = 1; i <= 100; i++) {
+                    const num = i === 100 ? '00' : i.toString().padStart(2, '0');
+                    const cell = document.createElement('div');
+                    cell.className = 'grade-cell';
+
+                    const row = Math.floor((i - 1) / 10) + 1;
+                    const col = ((i - 1) % 10) + 1;
+                    if (row === 5) cell.className += ' quadrant-row-5';
+                    if (col === 5) cell.className += ' quadrant-col-5';
+
+                    if (penultimoDezenas.includes(num)) {
+                        cell.className += ' selected';
+                    }
+                    cell.textContent = num;
+                    fragment.appendChild(cell);
+                }
+                const container = document.getElementById('penultimoGradeContainer');
+                container.innerHTML = '';
+                container.appendChild(fragment);
+                console.log(`Grade do penúltimo concurso ${penultimoConcurso} atualizada`);
+            } catch (error) {
+                console.error('Erro ao atualizar grade do penúltimo concurso:', error);
+            }
+        }
+
+        function updateGradeSection() {
+            try {
+                console.log('Atualizando grade do último concurso');
+                const rows = concursoTableBody.querySelectorAll('tr');
+                const lastRow = rows[rows.length - 1];
+                const ultimoConcurso = parseInt(lastRow.cells[0].textContent);
+                const lastDezenas = Array.from(lastRow.cells[1].querySelectorAll('.dezenas'))
+                    .map(span => span.textContent.padStart(2, '0'));
+
+                document.getElementById('ultimoGradeTitle').textContent = `Último Concurso (${ultimoConcurso})`;
+
+                const fragment = document.createDocumentFragment();
+                for (let i = 1; i <= 100; i++) {
+                    const num = i === 100 ? '00' : i.toString().padStart(2, '0');
+                    const cell = document.createElement('div');
+                    cell.className = 'grade-cell';
+
+                    const row = Math.floor((i - 1) / 10) + 1;
+                    const col = ((i - 1) % 10) + 1;
+                    if (row === 5) cell.className += ' quadrant-row-5';
+                    if (col === 5) cell.className += ' quadrant-col-5';
+
+                    if (lastDezenas.includes(num)) {
+                        cell.className += ' selected';
+                    }
+                    cell.textContent = num;
+                    fragment.appendChild(cell);
+                }
+                gradeContainer.innerHTML = '';
+                gradeContainer.appendChild(fragment);
+                console.log(`Grade do último concurso ${ultimoConcurso} atualizada`);
+            } catch (error) {
+                console.error('Erro ao atualizar grade do último concurso:', error);
+            }
+        }
+
+        function updatePrognosticoCounter() {
+            try {
+                const selectedCount = Object.values(prognosticoSelections).filter(selected => selected).length;
+                document.getElementById('prognosticoCounter').textContent = `Dezenas selecionadas: ${selectedCount}`;
+                console.log('Contador de prognósticos atualizado:', selectedCount);
+            } catch (error) {
+                console.error('Erro ao atualizar contador de prognósticos:', error);
+            }
+        }
+
+        function updatePrognosticoGrade() {
+            try {
+                console.log('Atualizando grade de prognósticos');
+                const rows = concursoTableBody.querySelectorAll('tr');
+                const lastRow = rows[rows.length - 1];
+                const lastDezenas = Array.from(lastRow.cells[1].querySelectorAll('.dezenas'))
+                    .map(span => parseInt(span.textContent));
+                const falhar = lastDezenas.map(num => (100 - num).toString().padStart(2, '0'));
+
+                const fragment = document.createDocumentFragment();
+                for (let i = 1; i <= 100; i++) {
+                    const num = i === 100 ? '00' : i.toString().padStart(2, '0');
+                    const cell = document.createElement('div');
+                    cell.className = 'grade-cell prognostico-cell';
+
+                    const row = Math.floor((i - 1) / 10) + 1;
+                    const col = ((i - 1) % 10) + 1;
+                    if (row === 5) cell.className += ' quadrant-row-5';
+                    if (col === 5) cell.className += ' quadrant-col-5';
+
+                    if (falhar.includes(num)) {
+                        cell.className += ' falhar';
+                    }
+                    if (prognosticoSelections[num]) {
+                        cell.className += ' prognostico-selected';
+                    }
+
+                    cell.textContent = num;
+                    cell.addEventListener('click', () => {
+                        prognosticoSelections[num] = !prognosticoSelections[num];
+                        cell.className = 'grade-cell prognostico-cell';
+                        if (row === 5) cell.className += ' quadrant-row-5';
+                        if (col === 5) cell.className += ' quadrant-col-5';
+                        if (falhar.includes(num)) {
+                            cell.className += ' falhar';
+                        }
+                        if (prognosticoSelections[num]) {
+                            cell.className += ' prognostico-selected';
+                        }
+                        updatePrognosticoCounter();
+                    });
+                    fragment.appendChild(cell);
+                }
+                prognosticoGradeContainer.innerHTML = '';
+                prognosticoGradeContainer.appendChild(fragment);
+                updatePrognosticoCounter();
+                console.log('Grade de prognósticos atualizada');
+            } catch (error) {
+                console.error('Erro ao atualizar grade de prognósticos:', error);
+            }
+        }
+
+        function updateUnicasAndRepetidas(tbody) {
+            try {
+                console.log('Atualizando classes repetidas e únicas');
+                const allDezenas = [];
+                const rows = tbody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const rowDezenas = Array.from(row.cells[1].querySelectorAll('.dezenas'))
+                        .map(span => span.textContent.padStart(2, '0'));
+                    allDezenas.push(rowDezenas);
+                });
+
+                rows.forEach((row, index) => {
+                    const spans = row.cells[1].querySelectorAll('.dezenas');
+                    const rowDezenas = allDezenas[index];
+                    const prevDezenas = index > 0 ? allDezenas[index - 1] : [];
+                    
+                    spans.forEach(span => {
+                        const num = span.textContent.padStart(2, '0');
+                        span.className = 'dezenas';
+                        if (prevDezenas.includes(num) && index > 0) {
+                            span.className += ' repetida';
+                        }
+                        if (frequenciaCache[num] === 1) {
+                            span.className += ' unica';
+                        }
+                    });
+                });
+                console.log('Classes repetidas e únicas atualizadas');
+            } catch (error) {
+                console.error('Erro ao atualizar classes repetidas e únicas:', error);
+            }
+        }
+
+        function exportToCsv() {
+            try {
+                console.log('Exportando tabela para CSV');
+                const rows = concursoTableBody.querySelectorAll('tr');
+                let csvContent = 'Concurso,Dezenas,Primos,Par,Ímpar,Repet.,Repetidas,Gêmeas\n';
+
+                rows.forEach(row => {
+                    const cells = row.cells;
+                    const concurso = cells[0].textContent;
+                    const dezenas = Array.from(cells[1].querySelectorAll('.dezenas'))
+                        .map(span => span.textContent)
+                        .join(';');
+                    const primos = cells[2].textContent;
+                    const par = cells[3].textContent;
+                    const impar = cells[4].textContent;
+                    const repet = cells[5].textContent;
+                    const repetidas = cells[6].textContent;
+                    const gemeas = cells[7].textContent;
+                   
+
+ csvContent += `${concurso},"${dezenas}",${primos},${par},${impar},${repet},${repetidas},${gemeas}\n`;
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `lotomania_concursos_${rows[0].cells[0].textContent}_a_${rows[rows.length - 1].cells[0].textContent}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                console.log('Exportação para CSV concluída');
+            } catch (error) {
+                console.error('Erro ao exportar CSV:', error);
+                messageDiv.textContent = 'Erro ao exportar CSV: ' + error.message;
+                messageDiv.className = 'message';
+            }
+        }
+
+        function saveTableToStorage() {
+            try {
+                console.log('Salvando tabela no localStorage');
+                if (!window.localStorage) {
+                    throw new Error('localStorage não está disponível no navegador.');
+                }
+
+                const rows = concursoTableBody.querySelectorAll('tr');
+                const concursos = Array.from(rows).map(row => {
+                    const dezenas = Array.from(row.cells[1].querySelectorAll('.dezenas')).map(span => span.textContent.padStart(2, '0'));
+                    return {
+                        concurso: row.cells[0].textContent,
+                        dezenas: dezenas,
+                        primos: row.cells[2].textContent,
+                        par: row.cells[3].textContent,
+                        impar: row.cells[4].textContent,
+                        repet: row.cells[5].textContent,
+                        repetidas: row.cells[6].textContent,
+                        gemeas: row.cells[7].textContent
+                    };
+                });
+
+                // Validar os dados antes de salvar
+                if (!concursos.length) {
+                    throw new Error('Nenhum concurso encontrado para salvar.');
+                }
+
+                concursos.forEach(concurso => {
+                    if (!concurso.concurso || !Array.isArray(concurso.dezenas) || concurso.dezenas.length !== 20) {
+                        throw new Error(`Dados inválidos no concurso ${concurso.concurso}.`);
+                    }
+                });
+
+                // Salvar no localStorage
+                localStorage.setItem('lotomaniaConcursos', JSON.stringify(concursos));
+                console.log('Tabela salva com sucesso:', concursos);
+            } catch (error) {
+                console.error('Erro ao salvar tabela no localStorage:', error);
+                messageDiv.textContent = 'Erro ao salvar os dados: ' + error.message;
+                messageDiv.className = 'message';
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                    messageDiv.className = 'message';
+                }, 5000);
+            }
+        }
+
+        function loadTableFromStorage() {
+            try {
+                console.log('Carregando tabela do localStorage');
+                if (!window.localStorage) {
+                    console.warn('localStorage não está disponível no navegador');
+                    return false;
+                }
+
+                const savedData = localStorage.getItem('lotomaniaConcursos');
+                if (!savedData) {
+                    console.log('Nenhum dado encontrado no localStorage, usando dados iniciais');
+                    return false;
+                }
+
+                let concursos;
+                try {
+                    concursos = JSON.parse(savedData);
+                } catch (e) {
+                    console.error('Erro ao parsear JSON do localStorage:', e);
+                    localStorage.removeItem('lotomaniaConcursos');
+                    messageDiv.textContent = 'Dados corrompidos detectados e removidos. Usando dados iniciais.';
+                    messageDiv.className = 'message';
+                    return false;
+                }
+
+                if (!Array.isArray(concursos) || concursos.length === 0) {
+                    console.log('Dados inválidos no localStorage');
+                    return false;
+                }
+
+                // Validar estrutura dos dados
+                const isValid = concursos.every(concurso => {
+                    return (
+                        typeof concurso.concurso === 'string' &&
+                        Array.isArray(concurso.dezenas) &&
+                        concurso.dezenas.length === 20 &&
+                        concurso.dezenas.every(num => /^\d{2}$/.test(num)) &&
+                        typeof concurso.primos === 'string' &&
+                        typeof concurso.par === 'string' &&
+                        typeof concurso.impar === 'string' &&
+                        typeof concurso.repet === 'string' &&
+                        typeof concurso.repetidas === 'string' &&
+                        typeof concurso.gemeas === 'string'
+                    );
+                });
+
+                if (!isValid) {
+                    console.error('Estrutura de dados inválida no localStorage');
+                    localStorage.removeItem('lotomaniaConcursos');
+                    messageDiv.textContent = 'Estrutura de dados inválida detectada e removida. Usando dados iniciais.';
+                    messageDiv.className = 'message';
+                    return false;
+                }
+
+                // Limpar tabela existente
+                concursoTableBody.innerHTML = '';
+                concursos.forEach(concurso => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${concurso.concurso}</td>
+                        <td class="dezenas-cell">
+                            ${concurso.dezenas.map(num => `<span class="dezenas">${num}</span>`).join('')}
+                        </td>
+                        <td>${concurso.primos}</td>
+                        <td>${concurso.par}</td>
+                        <td>${concurso.impar}</td>
+                        <td>${concurso.repet}</td>
+                        <td>${concurso.repetidas}</td>
+                        <td>${concurso.gemeas}</td>
+                    `;
+                    concursoTableBody.appendChild(row);
+                });
+
+                // Atualizar título da planilha
+                const rows = concursoTableBody.querySelectorAll('tr');
+                if (rows.length > 0) {
+                    const firstConcurso = rows[0].cells[0].textContent;
+                    const lastConcurso = rows[rows.length - 1].cells[0].textContent;
+                    document.querySelector('.planilha-title').textContent = `Planilha Lotomania - Concursos ${firstConcurso} a ${lastConcurso}`;
+                }
+
+                console.log('Tabela carregada do localStorage com sucesso:', concursos);
+                return true;
+            } catch (error) {
+                console.error('Erro ao carregar tabela do localStorage:', error);
+                messageDiv.textContent = 'Erro ao carregar dados salvos: ' + error.message;
+                messageDiv.className = 'message';
+                return false;
+            }
+        }
+
+        function initializeTable() {
+            try {
+                console.log('Iniciando inicialização da tabela');
+                const loadedFromStorage = loadTableFromStorage();
+                console.log('Dados do localStorage carregados:', loadedFromStorage);
+
+                const rows = concursoTableBody.querySelectorAll('tr');
+                if (rows.length === 0) {
+                    console.warn('Tabela vazia, não inicializando.');
+                    messageDiv.textContent = 'Nenhum dado disponível para carregar.';
+                    messageDiv.className = 'message';
+                    return;
+                }
+
+                console.log('Atualizando cache de frequências');
+                updateFrequenciaCache();
+                console.log('Atualizando classes repetidas e únicas');
+                updateUnicasAndRepetidas(concursoTableBody);
+                console.log('Calculando mais sorteadas');
+                calcularMaisSorteadas();
+                console.log('Atualizando estatísticas');
+                updateEstatisticasSection();
+                console.log('Atualizando frequência');
+                updateFrequenciaSection();
+                console.log('Atualizando dezenas que podem falhar');
+                updateDezenasFalhar();
+                console.log('Atualizando grade do penúltimo concurso');
+                updatePenultimoGrade();
+                console.log('Atualizando grade do último concurso');
+                updateGradeSection();
+                console.log('Atualizando grade de prognósticos');
+                updatePrognosticoGrade();
+                console.log('Atualizando contador de prognósticos');
+                updatePrognosticoCounter();
+                console.log('Tabela inicializada com sucesso');
+            } catch (error) {
+                console.error('Erro ao inicializar tabela:', error);
+                messageDiv.textContent = 'Erro ao inicializar tabela: ' + error.message;
+                messageDiv.className = 'message';
+            }
+        }
+
+        function resetData() {
+            try {
+                console.log('Redefinindo dados');
+                localStorage.removeItem('lotomaniaConcursos');
+                // Recarregar a página para usar os dados iniciais do HTML
+                window.location.reload();
+            } catch (error) {
+                console.error('Erro ao redefinir dados:', error);
+                messageDiv.textContent = 'Erro ao redefinir dados: ' + error.message;
+                messageDiv.className = 'message';
+            }
+        }
+
+        concursoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            try {
+                console.log('Evento de submissão disparado');
+                const input = dezenasInput.value.trim();
+                const validation = validateInput(input);
+                if (!validation.valid) {
+                    messageDiv.textContent = validation.message;
+                    messageDiv.className = 'message';
+                    console.error('Validação falhou:', validation.message);
+                    return;
+                }
+
+                const rows = concursoTableBody.querySelectorAll('tr');
+                const lastRow = rows[rows.length - 1];
+                const lastConcurso = parseInt(lastRow.cells[0].textContent);
+                const lastDezenas = Array.from(lastRow.cells[1].querySelectorAll('.dezenas'))
+                    .map(span => span.textContent.padStart(2, '0'));
+
+                const newConcurso = lastConcurso + 1;
+                const metrics = calculateMetrics(validation.dezenas, lastDezenas);
+
+                console.log('Novo concurso:', newConcurso, 'Dezenas:', metrics.sortedDezenas);
+
+                // Adicionar novo concurso
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${newConcurso}</td>
+                    <td class="dezenas-cell">
+                        ${metrics.sortedDezenas.map(num => `<span class="dezenas">${num}</span>`).join('')}
+                    </td>
+                    <td>${metrics.primosCount}</td>
+                    <td>${metrics.parCount}</td>
+                    <td>${metrics.imparCount}</td>
+                    <td>${metrics.repetidas.length}</td>
+                    <td>${metrics.repetidasCount}</td>
+                    <td>${metrics.gemeasCount}</td>
+                `;
+                concursoTableBody.appendChild(newRow);
+                console.log('Novo concurso adicionado à tabela');
+
+                // Remover o primeiro concurso se houver 10 ou mais
+                if (rows.length >= 10) {
+                    concursoTableBody.deleteRow(0);
+                    console.log('Primeiro concurso removido');
+                }
+
+                // Atualizar o título da planilha
+                const updatedRows = concursoTableBody.querySelectorAll('tr');
+                const firstConcurso = parseInt(updatedRows[0].cells[0].textContent);
+                document.querySelector('.planilha-title').textContent = `Planilha Lotomania - Concursos ${firstConcurso} a ${newConcurso}`;
+                console.log('Título atualizado:', `Planilha Lotomania - Concursos ${firstConcurso} a ${newConcurso}`);
+
+                // Atualizar todas as seções
+                updateFrequenciaCache();
+                updateUnicasAndRepetidas(concursoTableBody);
+                calcularMaisSorteadas();
+                updateEstatisticasSection();
+                updateFrequenciaSection();
+                updateDezenasFalhar();
+                updatePenultimoGrade();
+                updateGradeSection();
+                updatePrognosticoGrade();
+
+                // Salvar no localStorage e confirmar
+                saveTableToStorage();
+
+                // Limpar input e exibir mensagem de sucesso
+                dezenasInput.value = '';
+                messageDiv.textContent = `Concurso ${newConcurso} adicionado e salvo com sucesso!`;
+                messageDiv.className = 'message success';
+                setTimeout(() => { 
+                    messageDiv.textContent = ''; 
+                    messageDiv/conversion.js
+                    messageDiv.className = 'message'; 
+                }, 3000);
+                console.log('Concurso adicionado e salvo com sucesso');
+            } catch (error) {
+                console.error('Erro ao processar submissão:', error);
+                messageDiv.textContent = 'Erro ao adicionar concurso: ' + error.message;
+                messageDiv.className = 'message';
+            }
+        });
+
+        document.getElementById('exportCsvButton').addEventListener('click', exportToCsv);
+        resetButton.addEventListener('click', resetData);
+
+        initializeTable();
+    </script>
+</body>
+</html>
